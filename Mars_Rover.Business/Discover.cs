@@ -4,46 +4,49 @@ using Mars_Rover.Model.Common;
 using Mars_Rover.Model.Enums;
 using Mars_Rover.Model.Models.Common;
 using System;
+using System.Collections.Generic;
 
 namespace Mars_Rover.Business
 {
     public class Discover : IDiscover
     {
-        public Plateau plateau ;
-        public Rover rover;
-        public string command;
+        public Plateau Plateau;
+        public List<Rover> Rovers;
+        public List<string> Commands;
 
-        public Discover(Plateau plateau, Rover rover, string command)
+        public Discover(Plateau plateau, List<Rover> rovers, List<string> commands)
         {
-            Initialize(plateau,rover,command);
+            this.Plateau = plateau;
+            this.Rovers = rovers;
+            this.Commands = commands;
         }
 
-        public Discover()
-        {
-        }
-
-        public void Initialize(Plateau plateau, Rover rover, string command)
-        {
-            this.plateau = plateau;
-            this.rover = rover;
-            this.command = command;
-        }
         public string ApplyCommands()
         {
-            foreach (var value in command)
+            int i = 0;
+            Way way;
+            string result = String.Empty;
+
+            foreach (var rover in Rovers)
             {
-                Way way;
-                if (CommonChracter.Move == value)
-                    move();
-                else if (Enum.TryParse(value.ToString(), out way))
+                var command = Commands[i++];
+
+                foreach (var value in command)
                 {
-                    turn(way);
+                    if (CommonChracter.Move == value)
+                        move(rover);
+                    else if (Enum.TryParse(value.ToString(), out way))
+                    {
+                        turn(rover, way);
+                    }
                 }
+                result = result+ rover.Result +"\n";
+
             }
-            return rover.Result;
+            return result.Substring(0,result.Length-1);
         }
 
-        private void turn(Way way)
+        private void turn(Rover rover, Way way)
         {
             switch (way)
             {
@@ -84,31 +87,31 @@ namespace Mars_Rover.Business
             }
         }
 
-        private void move()
+        private void move(Rover rover)
         {
             switch (rover.Direction)
             {
                 case Direction.N:
-                    if (rover.Position.YAxis + 1 > plateau.Position.YAxis)
-                        throw new Exception($"Razor can not go out of plateau. Razor Y Axis position:{rover.Position.YAxis} Plateau Y Axis position:{plateau.Position.YAxis}");
+                    if (rover.Position.YAxis + 1 > Plateau.Position.YAxis)
+                        throw new Exception($"Razor can not go out of plateau. Razor Y Axis position:{rover.Position.YAxis} Plateau Y Axis position:{Plateau.Position.YAxis}");
                     else
                         rover.Position.YAxis++;
                     break;
                 case Direction.S:
                     if (rover.Position.YAxis - 1 < 0)
-                        throw new Exception($"Razor can not go out of plateau. Razor Y Axis position:{rover.Position.YAxis} Plateau Y Axis position:{plateau.Position.YAxis}");
+                        throw new Exception($"Razor can not go out of plateau. Razor Y Axis position:{rover.Position.YAxis} Plateau Y Axis position:{Plateau.Position.YAxis}");
                     else
                         rover.Position.YAxis--;
                     break;
                 case Direction.E:
-                    if (rover.Position.XAxis + 1 > plateau.Position.XAxis)
-                        throw new Exception($"Razor can not go out of plateau. Razor X Axis position:{rover.Position.XAxis} Plateau X Axis position:{plateau.Position.XAxis}");
+                    if (rover.Position.XAxis + 1 > Plateau.Position.XAxis)
+                        throw new Exception($"Razor can not go out of plateau. Razor X Axis position:{rover.Position.XAxis} Plateau X Axis position:{Plateau.Position.XAxis}");
                     else
                         rover.Position.XAxis++;
                     break;
                 case Direction.W:
                     if (rover.Position.XAxis - 1 < 0)
-                        throw new Exception($"Razor can not go out of plateau. Razor X Axis position:{rover.Position.XAxis} Plateau X Axis position:{plateau.Position.XAxis}");
+                        throw new Exception($"Razor can not go out of plateau. Razor X Axis position:{rover.Position.XAxis} Plateau X Axis position:{Plateau.Position.XAxis}");
                     else
                         rover.Position.XAxis--;
                     break;
